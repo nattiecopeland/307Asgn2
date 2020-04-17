@@ -1,8 +1,9 @@
 from flask import Flask
 from flask import request
+from flask import jsonify
 
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
 users = { 
     "users_list" :
     [
@@ -43,15 +44,31 @@ users = {
 def hello_world():
     return 'Hello, World!'
 
-@app.route('/users')
+@app.route('/users', methods=['GET', 'POST', 'DELETE'])
 def get_users():
-    search_username = request.args.get('username')
-    if search_username :
-        subdict = {"users_list" : []}
-        for user in users["users_list"]:
-            if user["username"] == search_username:
-                subdict["users_list"].append(user)
-        return subdict
+    if request.method == 'GET':
+      search_username = request.args.get('name')
+      if search_username :
+         subdict = {'users_list' : []}
+         for user in users['users_list']:
+            if user['name'] == search_username:
+               subdict['users_list'].append(user)
+         return subdict
+      return users
+    elif request.method == 'POST':
+      userToAdd = request.get_json()
+      users['users_list'].append(userToAdd)
+      resp = jsonify(success=True)
+      resp.status_code = 201 #optionally, you can always set a response code. 
+      # 200 is the default code for a normal response
+      return resp
+    elif request.method == 'DELETE':
+      userToDelete = request.get_json()
+      users['users_list'].remove(get_user(userToDelete["id"]))
+      resp = jsonify(success=True)
+      resp.status_code = 201 #optionally, you can always set a response code. 
+      # 200 is the default code for a normal response
+      return resp
     return users
 
 @app.route('/users/<id>')
@@ -61,4 +78,15 @@ def get_user(id):
             if user["id"] == id:
                 return user
         return ({})
+    return users
+
+@app.route('/users/<university>/<username>')
+def get_userUniName(university, username):
+    if(university and username):
+        matches = {'users_list' : []}
+        for user in users["users_list"]:
+            if((user["university"] == university) and
+                (user["username"] == username)):
+                matches['users_list'].append(user)
+        return matches
     return users
