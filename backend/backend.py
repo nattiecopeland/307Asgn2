@@ -1,48 +1,49 @@
 from flask import Flask
 from flask import request
 from flask import jsonify
+from flask_cors import CORS
+import random
 
 app = Flask(__name__)
-#CORS(app)
+CORS(app)
+
 users = { 
     "users_list" :
     [
         {  
-            "id" : "xyz567",
-            "username" : "teddy",
-            "email" : "xyzteddy@calpoly.edu",
-            "university" : "Cal Poly"
+            "id" : "psych1",
+            "name" : "Sean",
+            "job" : "Psychic"
         },
-        {
-            "id" : "abc567",
-            "username" : "bcdasilv",
-            "email" : "bcdasilv@calpoly.edu",
-            "university" : "Cal Poly"
+        {  
+            "id" : "psych2",
+            "name" : "Gus",
+            "job" : "Pharmaceutical Salesman"
         },
-        {
-            "id" : "yat999",
-            "username" : "qwerty",
-            "email" : "qwerty@mit.edu",
-            "university" : "MIT"
+        {  
+            "id" : "sbpd1",
+            "name" : "Jules",
+            "job" : "Detective"
         },
-        {
-            "id" : "oxz888",
-            "username" : "gaby",
-            "email" : "gaby33333@cuesta.edu",
-            "university" : "Cuesta"
-        }, 
-        {
-            "id" : "zap555",
-            "username" : "gaby",
-            "email" : "gaby5555@cuesta.edu",
-            "university" : "Cuesta"
-        } 
+        {  
+            "id" : "sbpd2",
+            "name" : "Lassy",
+            "job" : "Detective"
+        },
+        {  
+            "id" : "sbpd3",
+            "name" : "Karen",
+            "job" : "Chief"
+        }    
     ]
 }
 
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
+
+def random_id():
+    return 'unsub' + str(random.randint(0,10000))
 
 @app.route('/users', methods=['GET', 'POST', 'DELETE'])
 def get_users():
@@ -57,6 +58,7 @@ def get_users():
       return users
     elif request.method == 'POST':
       userToAdd = request.get_json()
+      userToAdd["id"] = random_id()
       users['users_list'].append(userToAdd)
       resp = jsonify(success=True)
       resp.status_code = 201 #optionally, you can always set a response code. 
@@ -66,7 +68,7 @@ def get_users():
       userToDelete = request.get_json()
       users['users_list'].remove(get_user(userToDelete["id"]))
       resp = jsonify(success=True)
-      resp.status_code = 201 #optionally, you can always set a response code. 
+      resp.status_code = 202 #optionally, you can always set a response code. 
       # 200 is the default code for a normal response
       return resp
     return users
@@ -80,13 +82,13 @@ def get_user(id):
         return ({})
     return users
 
-@app.route('/users/<university>/<username>')
-def get_userUniName(university, username):
-    if(university and username):
+@app.route('/users/<name>/<job>')
+def get_userUniName(name, job):
+    if(name and job):
         matches = {'users_list' : []}
         for user in users["users_list"]:
-            if((user["university"] == university) and
-                (user["username"] == username)):
+            if((user["name"] == name) and
+                (user["job"] == job)):
                 matches['users_list'].append(user)
         return matches
     return users
