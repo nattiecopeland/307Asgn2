@@ -2,7 +2,7 @@ from flask import Flask
 from flask import request
 
 app = Flask(__name__)
-
+CORS(app)
 users = { 
     "users_list" :
     [
