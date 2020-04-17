@@ -21,7 +21,32 @@ class App extends Component {
     });
   }
 
+  makeDeleteCall(character){
+    return axios.delete('http://localhost:5000/users/'+character["id"])
+    .then(function (response) {
+      console.log(response);
+      return (response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+      return false;
+    });
+  }
+
   removeCharacter = index => {
+    const { characters } = this.state
+    this.makeDeleteCall(characters[index]).then( callResult => {
+      if (callResult === true) {
+        this.setState({
+          characters: characters.filter((character, i) => {
+            return i !== index
+          }),
+        })
+      };
+    });
+  }
+
+  /*
     const { characters } = this.state
 
     axios.delete('http://localhost:5000/users/'+characters[index]["id"])
@@ -39,6 +64,7 @@ class App extends Component {
       return false;
     });
   }
+  */
 
   makePostCall(character){
    return axios.post('http://localhost:5000/users', character)

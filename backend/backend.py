@@ -45,7 +45,7 @@ def hello_world():
 def random_id():
     return 'unsub' + str(random.randint(0,10000))
 
-@app.route('/users', methods=['GET', 'POST', 'DELETE'])
+@app.route('/users', methods=['GET', 'POST'])
 def get_users():
     if request.method == 'GET':
       search_username = request.args.get('name')
@@ -60,22 +60,24 @@ def get_users():
       userToAdd = request.get_json()
       userToAdd["id"] = random_id()
       users['users_list'].append(userToAdd)
-      resp = jsonify(success=True)
+      resp = jsonify(userToAdd)
       resp.status_code = 201 #optionally, you can always set a response code. 
-      # 200 is the default code for a normal response
-      return resp
-    elif request.method == 'DELETE':
-      userToDelete = request.get_json()
-      users['users_list'].remove(get_user(userToDelete["id"]))
-      resp = jsonify(success=True)
-      resp.status_code = 202 #optionally, you can always set a response code. 
       # 200 is the default code for a normal response
       return resp
     return users
 
-@app.route('/users/<id>')
+@app.route('/users/<id>', methods = ['DELETE'])
 def get_user(id):
-    if id :
+    if request.method == 'DELETE':
+      for user in users["users_list"]:
+            if user["id"] == id:
+                users["users_list"].remove(user)
+      resp = jsonify(success=True)
+      resp.status_code = 202 #optionally, you can always set a response code. 
+      # 200 is the default code for a normal response
+      return resp
+
+    elif id :
         for user in users["users_list"]:
             if user["id"] == id:
                 return user
